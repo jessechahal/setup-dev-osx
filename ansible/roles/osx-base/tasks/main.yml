@@ -1,0 +1,58 @@
+---
+
+# install package managers
+- name: check for homebrew
+  command: brew
+  register: brew_exists
+  ignore_errors: yes
+
+- name: download homebrew install script
+  get_url: url=https://raw.githubusercontent.com/Homebrew/install/master/install dest=~/Downloads/homebrew_installer mode=0440
+  when: brew_exists.rc == 2
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"
+
+- name: install homebrew
+  command: ruby ~/Downloads/homebrew_installer 
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"
+  when: brew_exists.rc == 2
+
+- name: tap homebrew/versions
+  command: brew tap homebrew/versions
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"
+
+- name: tap caskroom/casks
+  command: brew tap caskroom/cask
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"
+
+- name: update homebrew package list
+  command: brew update
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"  
+
+- name: install homebrew cask
+  homebrew: name=brew-cask state=present
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"
+
+- name: install homebrew packages
+  homebrew: name={{ item }} state=present
+  sudo: yes
+  sudo_user: "{{ansible_env.SUDO_USER}}"
+  with_items:
+   - nmap
+   - ack
+   - git
+   - tmux
+   - screenfetch
+
+- name: install homebrew casks packages
+  sudo: yes
+  homebrew_cask: name={{ item }} state=present
+  with_items:
+   - iterm2
+   - p4merge
+   - eclipse-ide

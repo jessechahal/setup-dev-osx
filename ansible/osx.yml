@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+
+  vars:
+    - install_base: true # basic stuff every install should have
+    - install_docker
+  roles:
+   - { role: docker, when: install_docker }
